@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "bayesSampleMix: Contamination-Aware Bayesian Integration of Probability and Non-Probability Samples"
+version: 0.1.0
+date-released: 2026-11-20
+license: MIT
+repository-code: "https://github.com/dapr12/bayesSampleMix"
+url: "https://github.com/dapr12/bayesSampleMix"
+abstract: >-
+  Bayesian contamination-mixture regression for combining a trusted
+  probability sample with a non-probability sample that may contain units
+  incompatible with the target model. Each non-probability unit carries a
+  latent compatibility indicator sampled by data augmentation, yielding
+  posterior inference for regression coefficients, the contamination
+  fraction and unit-level filter scores. Gaussian, logistic (Polya-Gamma)
+  and Poisson regressions are supported.
+keywords:
+  - R
+  - Bayesian inference
+  - data integration
+  - non-probability samples
+  - survey statistics
+  - mixture models
+  - MCMC
+authors:
+  - given-names: "Diego Andrés"
+    family-names: "Pérez Ruiz"
+    email: diego.perezruiz@manchester.ac.uk
+    affiliation: "Department of Social Statistics, University of Manchester"
+  - given-names: "Constanza"
+    family-names: "Avalos Valdebenito"
+    email: constanza.avalos@postgrad.manchester.ac.uk
+    affiliation: "Department of Social Statistics, University of Manchester"
