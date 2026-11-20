@@ -1,0 +1,19 @@
+# R / RStudio
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+
+# build artefacts
+*.tar.gz
+bayesSampleMix.Rcheck/
+/doc/
+/Meta/
+inst/doc
+docs/
+CRAN-SUBMISSION
+
+# OS
+.DS_Store
+Thumbs.db

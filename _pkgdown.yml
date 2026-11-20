@@ -1,0 +1,48 @@
+url: https://dapr12.github.io/bayesSampleMix/
+template:
+  bootstrap: 5
+
+navbar:
+  structure:
+    left: [intro, reference, articles, news]
+    right: [search, github]
+
+articles:
+- title: Getting started
+  navbar: ~
+  contents:
+  - introduction
+- title: Models
+  contents:
+  - gaussian-model
+  - logistic-model
+  - poisson-model
+
+reference:
+- title: Fitting
+  contents:
+  - mixture_fit
+  - mixture_fit_matrix
+  - baseline_fit
+- title: Priors and control
+  contents:
+  - mixture_prior
+  - mixture_control
+- title: Posterior summaries and methods
+  contents:
+  - summary.bsm_fit
+  - predict.bsm_fit
+  - plot.bsm_fit
+  - as.matrix.bsm_fit
+  - filter_scores
+  - effective_size
+- title: Diagnostics
+  contents:
+  - overlap_diagnostics
+  - filter_auc
+- title: Simulation
+  contents:
+  - simulate_mixture_data
+- title: Package
+  contents:
+  - bayesSampleMix-package

@@ -1,0 +1,148 @@
+---
+title: "Introduction to bayesSampleMix"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to bayesSampleMix}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 6, fig.height = 4)
+```
+
+```{r setup}
+library(bayesSampleMix)
+```
+
+## The problem
+
+A *probability sample* (P) is drawn with a known design and is trusted to
+represent the target population, but it is often small. A *non-probability
+sample* (NP) — web panels, administrative extracts, opt-in surveys — is
+cheaper and larger, but some of its units may follow a different
+outcome–covariate relationship than the target population, or lie outside
+its covariate support. We call such units *contaminated*.
+
+Two simple strategies are common:
+
+* **Probability-only:** ignore the NP sample. Unbiased, but imprecise.
+* **Naive pooling:** treat every NP unit as if it came from the target
+  population. Precise, but biased whenever contamination is present — and
+  more data does not reduce that bias.
+
+**Contamination-aware integration** sits between the two. Each NP unit $j$
+receives a latent indicator $z_j$ ($1$ = compatible with the target model).
+Compatible units are pooled with the P sample; contaminated units are
+absorbed by a separate mixture component. The posterior probability
+$s_j = P(z_j = 1 \mid \text{data})$ — the *filter score* — tells you how much
+each NP unit is trusted, and the posterior of $1 - \pi$ estimates the
+contamination fraction. Because only compatible units inform the target
+regression, the estimator is close to probability-only when the NP sample is
+heavily contaminated and close to the pooled estimator when it is clean.
+
+## Model
+
+For P units, $y_i \sim f(y \mid x_i, \beta)$ (Gaussian, logistic or Poisson
+regression). For NP units,
+
+$$z_j \sim \text{Bernoulli}(\pi), \qquad
+p(y_j, x_j \mid z_j) = \begin{cases}
+f(y_j \mid x_j, \beta)\, g_1(x_j) & z_j = 1\\
+h(y_j \mid x_j, \phi)\, g_0(x_j) & z_j = 0.
+\end{cases}$$
+
+Three variants are available through `model`:
+
+| model | contaminating outcome density $h$ | covariate term |
+|---|---|---|
+| `"M0"` | covariate-free ($N(\mu_0,\tau^2)$, Bernoulli($q$), Poisson($\lambda_0$)) | none |
+| `"Mjoint"` (default) | as M0 | $g_1 = N(\hat\mu_P, \hat\Sigma_P)$, $g_0 = N(\hat\mu_P, c\,\hat\Sigma_P)$ on continuous covariates |
+| `"M1"` | rival regression with its own coefficients | none |
+
+The `Mjoint` covariate term compares each NP unit's continuous covariates with
+the P-sample distribution: units at large Mahalanobis distance are more
+plausible under the inflated contaminating density and are down-weighted.
+
+Estimation uses a data-augmentation Gibbs sampler; the target block is
+updated with conjugate Gibbs steps (Gaussian), Pólya–Gamma augmentation
+(logistic) or a Laplace-proposal Metropolis–Hastings step (Poisson). See
+`?mixture_fit` for details.
+
+## A first example
+
+`simulate_mixture_data()` generates a P sample and an NP sample with a known
+fraction of contaminated units.
+
+```{r data}
+d <- simulate_mixture_data("gaussian", n_prob = 150, n_nonprob = 300,
+                           contamination = 0.3, beta = c(2, 5),
+                           x_shift = 1.5, seed = 2026)
+head(d$nonprob)
+table(d$nonprob$contaminated)
+```
+
+Before fitting, check how well the NP sample overlaps the P sample in the
+covariate space:
+
+```{r overlap}
+overlap_diagnostics(d$prob["x1"], d$nonprob["x1"])
+```
+
+Fit the contamination-aware model and the two reference estimators:
+
+```{r fit}
+fit <- mixture_fit(y ~ x1, prob_data = d$prob, nonprob_data = d$nonprob,
+                   family = "gaussian", n_iter = 3000, burnin = 1000, seed = 1)
+prob_only <- baseline_fit(y ~ x1, d$prob, n_iter = 2000, burnin = 1000, seed = 1)
+pooled <- baseline_fit(y ~ x1, rbind(d$prob, d$nonprob[names(d$prob)]),
+                       n_iter = 2000, burnin = 1000, seed = 1)
+rbind(truth = c(2, 5), prob_only = coef(prob_only), naive_pooled = coef(pooled),
+      mixture = coef(fit))
+```
+
+The naive pooled estimate is pulled away from the truth by the contaminated
+units; the mixture estimate is close to the truth and, using the compatible NP
+units, more precise than the probability-only estimate:
+
+```{r precision}
+rbind(prob_only = apply(as.matrix(prob_only)[, 1:2], 2, sd),
+      mixture = apply(as.matrix(fit)[, 1:2], 2, sd))
+```
+
+## Interpreting the output
+
+```{r summary}
+summary(fit)
+```
+
+* **Target-model coefficients** are posterior summaries of $\beta$ from the
+  retained draws: posterior mean and standard deviation, an equal-tailed
+  credible interval, effective sample size (`ess`) and Monte Carlo standard
+  error (`mcse`).
+* **Contamination** reports $1-\pi$ (the probability that a new NP unit is
+  contaminated) and the realised fraction of the observed NP units allocated
+  to the contaminating component.
+* **Filter scores** $s_j$ are unit-level posterior probabilities of
+  compatibility:
+
+```{r scores}
+s <- filter_scores(fit)
+tapply(s, d$nonprob$contaminated, summary)
+filter_auc(1 - d$nonprob$contaminated, s)   # known labels: simulation only
+plot(fit, type = "scores")
+```
+
+Always inspect the chains:
+
+```{r trace, fig.height = 5}
+plot(fit, type = "trace")
+```
+
+## Where next
+
+* `vignette("gaussian-model")`: the three model variants and severe
+  contamination.
+* `vignette("logistic-model")`: binary outcomes with Pólya–Gamma
+  augmentation.
+* `vignette("poisson-model")`: count outcomes.

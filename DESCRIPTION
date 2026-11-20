@@ -1,0 +1,35 @@
+Package: bayesSampleMix
+Type: Package
+Title: Contamination-Aware Bayesian Integration of Probability and
+    Non-Probability Samples
+Version: 0.1.0
+Authors@R: c(
+    person("Diego Andres", "Perez Ruiz", email = "diego.perezruiz@manchester.ac.uk",
+           role = c("aut", "cre", "cph")),
+    person("Constanza", "Avalos Valdebenito", email = "constanza.avalos@postgrad.manchester.ac.uk",
+           role = c("aut", "cph"))
+  )
+Description: Bayesian contamination-mixture regression for combining a
+    trusted probability sample with a non-probability sample that may
+    contain units incompatible with the target model. Each non-probability
+    unit carries a latent compatibility indicator that is sampled by data
+    augmentation, yielding posterior inference for regression coefficients,
+    the contamination fraction and unit-level filter scores. Gaussian
+    (conjugate Gibbs), logistic (Polya-Gamma augmentation; Polson, Scott and
+    Windle (2013) <doi:10.1080/01621459.2013.829001>) and Poisson
+    (Laplace-proposal Metropolis-Hastings) regressions are supported, with an
+    optional Mahalanobis-type covariate term that flags units outside the
+    covariate support of the probability sample.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends: R (>= 4.1.0)
+Imports: graphics, stats
+Suggests: coda, knitr, rmarkdown, testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+Language: en-GB
+Roxygen: list(markdown = TRUE)
+URL: https://github.com/dapr12/bayesSampleMix
+BugReports: https://github.com/dapr12/bayesSampleMix/issues
+Config/roxygen2/version: 8.1.1
+NeedsCompilation: no
