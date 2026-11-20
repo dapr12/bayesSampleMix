@@ -1,0 +1,4 @@
+# License
+
+    YEAR: 2026
+    COPYRIGHT HOLDER: Diego Andres Perez Ruiz and Constanza Avalos Valdebenito

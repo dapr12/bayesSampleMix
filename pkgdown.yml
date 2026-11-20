@@ -1,0 +1,12 @@
+pandoc: 3.8.3
+pkgdown: 2.2.1
+pkgdown_sha: ~
+articles:
+  gaussian-model: gaussian-model.html
+  introduction: introduction.html
+  logistic-model: logistic-model.html
+  poisson-model: poisson-model.html
+last_built: 2026-11-20T16:22Z
+urls:
+  reference: https://dapr12.github.io/bayesSampleMix/reference
+  article: https://dapr12.github.io/bayesSampleMix/articles
